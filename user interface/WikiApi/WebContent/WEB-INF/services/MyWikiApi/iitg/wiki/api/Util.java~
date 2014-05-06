@@ -1,0 +1,389 @@
+package iitg.wiki.api;
+
+
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import net.spy.memcached.MemcachedClient;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+/******************************  END OF HEADERS *******************************************/
+
+
+public class Util {
+			
+	public static Configuration conf = new Configuration();
+	public static FileSystem fileSystem = null;
+	public static String homePath="/home/hduser/";
+	
+	public static Map<String, String> pathMap = new HashMap<String, String>();
+		
+	public static MemcachedClient memcache;
+	
+	public Util() throws Exception {
+		
+	}
+	
+	public static void startUp()throws Exception{
+		conf.addResource(new Path("/home/hduser/hadoop/conf/core-site.xml"));
+		conf.addResource(new Path("/home/hduser/hadoop/conf/hdfs-site.xml"));
+		memcache = new MemcachedClient(new InetSocketAddress("127.0.0.1", 11211));
+		fileSystem = FileSystem.get(conf);
+		updatePathMap();
+	}
+	
+	
+	/*************Inserting path of all folders to Hash map************/
+	
+	public static void updatePathMap(){
+		
+		//Category
+		pathMap.put("checkCategoryId", "CategoryDataSets/Basics/CheckCategoryId/");
+		pathMap.put("getCategoryIdByTitle", "CategoryDataSets/Basics/GetCategoryIdbyTitle/");
+		pathMap.put("checkCategoryTitle", "CategoryDataSets/Basics/CheckCategoryTitle/");
+		pathMap.put("getCategoryTitleById", "CategoryDataSets/Basics/GetCategoryTitlebyId/");
+		
+		pathMap.put("getCategoryURLById", "CategoryDataSets/Url/GetCategoryURLbyId/");
+		pathMap.put("getCategoryURLByTitle", "CategoryDataSets/Url/GetCategoryURLbyTitle/");
+		
+		pathMap.put("getListOfChildrenById", "CategoryDataSets/Children/GetListofChildrenbyId/");
+		pathMap.put("getListOfChildrenIdByTitle", "CategoryDataSets/Children/GetListofChildrenIdbyTitle/");
+		pathMap.put("getListOfChildrenTitleByTitle", "CategoryDataSets/Children/GetListofChildrenTitlebyTitle/");
+		pathMap.put("getNoOfChildrenById", "CategoryDataSets/Children/GetNoofChildrenbyId/");
+		pathMap.put("getNoOfChildrenByTitle", "CategoryDataSets/Children/GetNoofChildrenbyTitle/");
+		
+		pathMap.put("getNoOfParentsById", "CategoryDataSets/Parent/GetNoofParentsbyId/");
+		pathMap.put("getNoOfParentsByTitle", "CategoryDataSets/Parent/GetNoofParentsbyTitle/");
+		pathMap.put("getListOfParentsById", "CategoryDataSets/Parent/GetListofParentsbyId/");
+		pathMap.put("getListOfParentsIdByTitle", "CategoryDataSets/Parent/GetListofParentsIdbyTitle/");
+		pathMap.put("getListOfParentsTitleByTitle", "CategoryDataSets/Parent/GetListofParentsTitlebyTitle/");
+		
+		pathMap.put("getNoOfPageById", "CategoryDataSets/Page/GetNoofPagebyId/");
+		pathMap.put("getNoOfPageByTitle", "CategoryDataSets/Page/GetNoofPagebyTitle/");
+		pathMap.put("getListOfPageIdById", "CategoryDataSets/Page/GetListofPageIdbyId/");
+		pathMap.put("getListOfPageIdByTitle", "CategoryDataSets/Page/GetListofPageIdbyTitle/");
+		pathMap.put("getListOfPageTitleByTitle", "CategoryDataSets/Page/GetListofPageTitlebyTitle/");
+		
+		//Page
+		pathMap.put("checkPageId", "PageDataSets/Basics/CheckPageId/");
+		pathMap.put("checkPageTitle", "PageDataSets/Basics/CheckPageTitle/");
+		pathMap.put("getPageIdByTitle", "PageDataSets/Basics/GetPageIdbyTitle/");
+		pathMap.put("getPageTitleById", "PageDataSets/Basics/GetPageTitlebyId/");	//not using
+		
+		pathMap.put("getTotalCatById", "PageDataSets/Category/GetTotalCatbyId/");
+		pathMap.put("getTotalCatByTitle", "PageDataSets/Category/GetTotalCatbyTitle/");
+		pathMap.put("getListOfCatById", "PageDataSets/Category/GetListofCatbyId/");
+		pathMap.put("getListOfCatByTitle", "PageDataSets/Category/GetListofCatbyTitle/");	
+
+		pathMap.put("checkDisambiguationByTitle", "PageDataSets/Disambiguation/CheckDisambiguationbyTitle/");
+		pathMap.put("checkDisambiguationById", "PageDataSets/Disambiguation/CheckDisambiguationbyId/");	//not using
+		
+		pathMap.put("checkRedirectByTitle", "PageDataSets/Redirect/CheckRedirectbyTitle/");
+		pathMap.put("checkRedirectById", "PageDataSets/Redirect/CheckRedirectbyId/");
+		pathMap.put("getTotalRedirectsById", "PageDataSets/Redirect/GetTotalRedirectsbyId/");
+		pathMap.put("getTotalRedirectsByTitle", "PageDataSets/Redirect/GetTotalRedirectsbyTitle/");	
+		pathMap.put("getRedirectsToTitleByTitle", "PageDataSets/Redirect/GetRedirectsToTitlebyTitle/");
+		pathMap.put("getRedirectsToTitleById", "PageDataSets/Redirect/GetRedirectsToTitlebyId/");
+		pathMap.put("getListOfRedirectsTitleById", "PageDataSets/Redirect/GetListofRedirectsTitlebyId/");
+		pathMap.put("getListOfRedirectsTitleByTitle", "PageDataSets/Redirect/GetListofRedirectsTitlebyTitle/");	
+		
+		pathMap.put("getPageURLById", "PageDataSets/Url/GetPageURLbyId/");
+		pathMap.put("getPageURLByTitle", "PageDataSets/Url/GetPageURLbyTitle/");	
+		
+		pathMap.put("getInlinkListById", "PageDataSets/Inlinks/GetInlinkListbyId/");	
+		pathMap.put("getInlinkListByTitle", "PageDataSets/Inlinks/GetInlinkListbyTitle/");
+		pathMap.put("getTotalInlinksById", "PageDataSets/Inlinks/GetTotalInlinksbyId/");
+		pathMap.put("getTotalInlinksByTitle", "PageDataSets/Inlinks/GetTotalInlinksbyTitle/");
+		pathMap.put("getListOfInlinksTitleByTitle", "PageDataSets/Inlinks/GetListofInlinksTitlebyTitle/");	
+		
+		pathMap.put("getOutlinkListById", "PageDataSets/Outlinks/GetOutlinkListbyId/");	
+		pathMap.put("getOutlinkListByTitle", "PageDataSets/Outlinks/GetOutlinkListbyTitle/");
+		pathMap.put("getTotalOutlinksById", "PageDataSets/Outlinks/GetTotalOutlinksbyId/");
+		pathMap.put("getTotalOutlinksByTitle", "PageDataSets/Outlinks/GetTotalOutlinksbyTitle/");
+		pathMap.put("getListOfOutlinksTitleByTitle", "PageDataSets/Outlinks/GetListofOutlinksTitlebyTitle/");	
+		
+		pathMap.put("getPlainTextById", "PageDataSets/Text/GetPlainTextbyId/");	
+		pathMap.put("getPlianTextByTitle", "PageDataSets/Text/GetPlianTextbyTitle/");
+		pathMap.put("getXmlTextById", "PageDataSets/Text/GetXmlTextbyId/");
+		pathMap.put("getXmlTextByTitle", "PageDataSets/Text/GetXmlTextbyTitle/");
+		
+		//Word
+		pathMap.put("getWordById", "WordSearchDataSets/GetWordbyId/");
+		pathMap.put("checkWord", "WordSearchDataSets/CheckWord/");	
+		pathMap.put("getIdbyWord", "WordSearchDataSets/GetIdbyWord/");
+		pathMap.put("frequencyCount", "WordSearchDataSets/FrequencyCount/");
+		pathMap.put("getNoOfPagesContainTheWord", "WordSearchDataSets/GetNoofPagesContainTheWord/");
+		pathMap.put("listOfPagesContainTheWord", "WordSearchDataSets/ListofPagesContainTheWord/");	
+		
+	}
+	
+
+	public static Boolean boolReturner(String input, String function) throws Exception{
+		startUp();
+		Boolean resultBool=false;
+		try{
+			if(memcache.get(input+function)!=null)					//if already in memcache
+				return (Boolean)memcache.get(input+function);
+		
+		int index=getFileName(function, input);
+		String file=homePath + pathMap.get(function);
+		Path path=new Path(file+index);
+		if(!fileSystem.exists(path)){
+			System.out.println(path+" dosen't exist");
+			return false;
+		}
+		
+		FSDataInputStream fin=fileSystem.open(path);
+		String line = null;
+		String modified_key;
+
+		while ((line = fin.readLine()) != null) {
+			StringTokenizer st = new StringTokenizer(line,"\t");
+			while (st.hasMoreElements()) {
+				modified_key = (String) st.nextElement() + function;
+				Boolean bool = Integer.parseInt(st.nextElement().toString()) == 0 ? false:true;
+				memcache.set(modified_key, 3600, bool);
+			}
+		}
+		System.out.println((Boolean)memcache.get(input+function));
+		if((Boolean)memcache.get(input+function)==null)
+			resultBool=false;
+		else
+			resultBool = (Boolean)memcache.get(input+function);
+		}
+		catch(NullPointerException e){
+			System.out.println("Null value found  in boolretutner");
+			e.printStackTrace();
+		}
+		return resultBool;
+		
+	}
+	
+public static long longReturner(String input, String function) throws Exception{
+		startUp();
+		if(memcache.get(input+function)!=null)					//if already in memcache
+			return (long)memcache.get(input+function);
+		
+		String file=homePath + pathMap.get(function);
+		int index=getFileName(function, input);
+		Path path=new Path(file+index);
+		if(!fileSystem.exists(path)){
+			System.out.println(path+" dosen't exist");
+			return -1;
+		}
+		
+		FSDataInputStream fin=fileSystem.open(path);
+		String line = null;
+		String modified_key;
+		long value;
+
+		while ((line = fin.readLine()) != null) {
+			StringTokenizer st = new StringTokenizer(line);
+			while (st.hasMoreElements()) {
+				modified_key = (String) st.nextElement() + function;
+				value = Long.parseLong((st.nextElement().toString().trim()));
+				memcache.set(modified_key, 3600, value);
+			}
+		}
+		System.out.println((long)memcache.get(input+function));
+		
+		if(memcache.get(input+function)==null)
+			return -1;
+		else
+			return (long)memcache.get(input+function);
+	}
+	
+	
+	public static String stringReturner(String input, String function) throws Exception{
+		startUp();
+		String answer;
+		if(memcache.get(input+function)!=null)					//if already in memcache
+			return (String)memcache.get(input+function);
+		
+		String file=homePath + pathMap.get(function);
+		int index=getFileName(function, input);
+		Path path=new Path(file+index);
+		if(!fileSystem.exists(path)){
+			System.out.println(path+" dosen't exist");
+			return null;
+		}
+		
+		FSDataInputStream fin=fileSystem.open(path);
+		String line = null;
+		String modified_key, value;
+
+		while ((line = fin.readLine()) != null) {
+			StringTokenizer st = new StringTokenizer(line,"\t");
+			while (st.hasMoreElements()) {
+				modified_key = (String) st.nextElement() + function;
+				value=st.nextElement().toString();
+				memcache.set(modified_key, 3600, value);
+			}
+		}
+		System.out.println(memcache.get(input+function));
+		
+		if(memcache.get(input+function)==null)
+			return null;
+		else
+			return (String)memcache.get(input+function);
+	}
+	
+	
+	
+	public static ArrayList<String> arrayReturner(String input, String function) throws Exception{
+		startUp();
+		ArrayList<String> resultTable=new ArrayList<String>();
+		Boolean bool=false;
+	
+		if(memcache.get(input+function)!=null)					//if already in memcache
+			return (ArrayList<String>)memcache.get(input+function);
+		
+		String file=homePath + pathMap.get(function);
+		
+		int index=getFileName(function, input);
+		if(index>0){
+			index--;
+		}
+		
+		Path path=new Path(file+index);
+		if(!fileSystem.exists(path)){
+			System.out.println(path+" dosen't exist");
+			resultTable.add("-1");
+			return resultTable;
+		}
+		
+		
+		String line = null;
+		String modified_key=null,word=null, value;
+		
+		do{
+			System.out.println("value");
+			FSDataInputStream fin=fileSystem.open(path);
+			while ((line = fin.readLine()) != null) {
+				StringTokenizer st = new StringTokenizer(line);
+				while (st.hasMoreElements()) {
+					word = (String) st.nextElement();
+					if(index==1)
+						System.out.println(word);
+					bool=word.equalsIgnoreCase(input);
+					if(bool){
+						modified_key=word+function;
+						value=(String)st.nextElement();
+						resultTable.add(value);
+						System.out.println(value);
+					}
+				}
+				
+			}
+			if(bool){
+				index++;
+				path = new Path(file+index);
+				System.out.println(path);
+			}
+			memcache.set(input+function, 3600, resultTable);
+			System.out.println(memcache.get(input+function));
+			
+		}while(bool);
+		
+		if(resultTable.isEmpty()){
+			resultTable.add("-1");
+			System.out.println("Array is null");
+		}
+		System.out.println("Array is null");
+		//System.out.println(memcache.get(input+function));
+		
+		return resultTable;
+	}
+	
+	/*************** Read Table.txt which contains the file name *****************/
+	
+	public static ArrayList<String> readTable(String file) throws Exception{
+		String line = null;
+		String word;
+		ArrayList<String> table=new ArrayList<String>();
+		Path path = new Path(file);
+
+		try{
+			if (!fileSystem.exists(path)) {
+				System.out.println("File " + file + " does not exists");
+			}
+			else{
+				System.out.println("File " + file + " is updating");
+		
+				FSDataInputStream fin = fileSystem.open(path);
+				while ((line = fin.readLine()) != null) {
+					StringTokenizer str = new StringTokenizer(line,"\n");
+					while (str.hasMoreElements()) {
+						StringTokenizer strInner = new StringTokenizer(line,"\t");
+						word = (String) str.nextElement();
+						table.add(word);
+						
+					}
+				}		
+			}
+			
+		}
+		catch(NullPointerException e){
+			System.out.println("Null value found while reading table");
+		}
+		if(table.isEmpty())
+			table.add("-1");
+	
+		return table;
+
+	}
+	
+	/*************** Reading the file name from table *****************/
+	
+	public static int getFileName(String function, String input)throws Exception{
+		String file=homePath + pathMap.get(function);
+		ArrayList<String> table=new ArrayList<String>();
+		int index=-1;
+		
+		try{
+			if(memcache.get(function)!=null)
+				table= (ArrayList<String>)memcache.get(function);
+		
+		
+		
+		if(Collections.binarySearch(table, input)==-1){
+			table=readTable(file+"Table.txt");
+			memcache.set(function, 3600, table);
+		}
+		
+		index=Collections.binarySearch(table, input);
+		
+		if(index<0){ 	//If no match it returns a -ve value that indicates where the key would fit in if you were to insert it.
+			index = (-(index + 1))-1;
+		}
+		
+		System.out.println(index);
+		}
+		catch(NullPointerException e){
+			System.out.println("Null value found  while reading file name");
+			e.printStackTrace();
+		}
+		return index;
+	}
+		
+	public static void main(String args[]) throws Exception{
+		//Util util=new Util();
+		
+		//System.out.println(boolReturner("1039","checkCategoryTitle"));
+		System.out.println(arrayReturner("1438","getListOfChildrenTitleByTitle"));
+		//System.out.println(arrayReturner("10006263","getListOfChildrenById"));
+		//System.out.println(boolReturner("100BC","checkPageTitle"));
+	}
+
+}

@@ -1,0 +1,6 @@
+#Don't change the format of file properties.txt
+
+Server: localhost
+username: root
+password: ps
+database: enwiki
